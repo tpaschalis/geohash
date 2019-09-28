@@ -11,3 +11,7 @@ var vpTestcases = []ValidPointTestcase{
 var encTestcases = []EncodingTestcase{
 	{Point{52.205, 0.119}, 7, "u120fxw", nil},
 }
+
+var decTestcases = []DecodingTestcase{
+	{"zjtptsj2vn", Box{77.2779929638, 77.2779983282, 142.280373573, 142.280384302}, nil},
+}

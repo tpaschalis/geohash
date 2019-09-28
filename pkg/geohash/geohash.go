@@ -1,6 +1,8 @@
 package geohash
 
-import "strings"
+import (
+	"strings"
+)
 
 type Point struct {
 	lat float64
@@ -28,7 +30,7 @@ const (
 )
 
 // Encodes a Point, returning a geohash string
-// Uses maximum precision with 12 characters
+// Uses maximum 12-character precision
 func Encode(p Point) (string, error) {
 	s, e := EncodeUsingPrecision(p, 12)
 	return s, e
@@ -37,7 +39,7 @@ func Encode(p Point) (string, error) {
 var base32Charset = "0123456789bcdefghjkmnpqrstuvwxyz"
 
 // Encodes a Point, returning a geohash string
-// of `precision` length
+// of length equal to `precision`
 func EncodeUsingPrecision(p Point, precision int) (string, error) {
 	res := ""
 	idx := 0 // Index of base32 charset map
@@ -91,23 +93,46 @@ func EncodeUsingPrecision(p Point, precision int) (string, error) {
 	return res, nil
 }
 
-// Decodes a geohash string, returning a Box
-func Decode(hash string) Box {
-	res = Box{}
+// Decodes a geohash string, return a Box
+func Decode(hash string) (Box, error) {
 	hash = strings.ToLower(hash)
 	//if err := ValidHash(hash); err != nil {
-	//	return res, InvalidHashError
+	//	return Box{}, InvalidHashError
 	//}
+
+	evenBit := true
 	latMin, latMax := -90., 90.
 	lonMin, lonMax := -180., 180.
 
 	for i := 0; i < len(hash); i++ {
 		char := hash[i : i+1]
-		//for i, v := range base32Charset {
-		//	if v == char
-		//}
+		idx := strings.Index(base32Charset, char)
+
+		for n := 4; n >= 0; n-- {
+			bitN := idx >> uint(n) & 1
+			switch evenBit {
+			// Even digits, work on East-West direction
+			case true:
+				lonMid := (lonMin + lonMax) / 2.
+				if bitN == 1 {
+					lonMin = lonMid
+				} else {
+					lonMax = lonMid
+				}
+			// Odd digits, work on North-South direction
+			case false:
+				latMid := (latMin + latMax) / 2.
+				if bitN == 1 {
+					latMin = latMid
+				} else {
+					latMax = latMid
+				}
+				evenBit = !evenBit
+			}
+		}
 	}
-	return Box{}
+
+	return Box{latMin, latMax, lonMin, lonMax}, nil
 }
 
 func ValidPoint(p Point) error {
@@ -117,5 +142,18 @@ func ValidPoint(p Point) error {
 		return InvalidPointError
 	}
 
+	return nil
+}
+
+func ValidHash(h string) error {
+	if len(h) > 12 {
+		return ErrorHashExceedsMaxPrecision
+	}
+	for v := range h {
+		s := h[v : v+1]
+		if strings.Index(base32Charset) == -1 {
+			return
+		}
+	}
 	return nil
 }

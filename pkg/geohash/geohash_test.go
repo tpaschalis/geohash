@@ -1,6 +1,7 @@
 package geohash
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -17,6 +18,12 @@ type EncodingTestcase struct {
 	precision int
 	want      string
 	wantErr   error
+}
+
+type DecodingTestcase struct {
+	hash    string
+	want    Box
+	wantErr error
 }
 
 func TestValidPoint(t *testing.T) {
@@ -36,5 +43,19 @@ func TestEncodeUsingPrecision(t *testing.T) {
 			t.Errorf("Incorrect encoding for '%v' and '%v'; expected '%v' and '%v', got '%v' and '%v'", c.p, c.precision, c.want, c.wantErr, got, gotErr)
 		}
 
+	}
+}
+
+func BenchmarkEncodeUsingPreision(b *testing.B) {
+
+}
+
+func TestDecode(t *testing.T) {
+
+	for _, c := range decTestcases {
+		got, gotErr := Decode(c.hash)
+		if !reflect.DeepEqual(got, c.want) || gotErr != c.wantErr {
+			t.Errorf("Incorrect decoding of hash '%v'; expected '%v' and '%v', got '%v' and '%v'", c.hash, c.want, c.wantErr, got, gotErr)
+		}
 	}
 }
