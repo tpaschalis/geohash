@@ -50,10 +50,10 @@ func BenchmarkEncodeUsingPreision(b *testing.B) {
 
 }
 
-func TestDecode(t *testing.T) {
+func TestDecodeToBox(t *testing.T) {
 
 	for _, c := range decTestcases {
-		got, gotErr := Decode(c.hash)
+		got, gotErr := DecodeToBox(c.hash)
 		if !reflect.DeepEqual(got, c.want) || gotErr != c.wantErr {
 			t.Errorf("Incorrect decoding of hash '%v'; expected '%v' and '%v', got '%v' and '%v'", c.hash, c.want, c.wantErr, got, gotErr)
 		}
