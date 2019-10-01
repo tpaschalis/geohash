@@ -2,10 +2,10 @@ package geohash
 
 var vpTestcases = []ValidPointTestcase{
 	{Point{40.23, 23.41}, nil},
-	{Point{140.2, 14.51}, InvalidPointError},
-	{Point{-140.2, 14.51}, InvalidPointError},
-	{Point{20.2, 245.51}, InvalidPointError},
-	{Point{20.2, -245.51}, InvalidPointError},
+	{Point{140.2, 14.51}, ErrInvalidPoint},
+	{Point{-140.2, 14.51}, ErrInvalidPoint},
+	{Point{20.2, 245.51}, ErrInvalidPoint},
+	{Point{20.2, -245.51}, ErrInvalidPoint},
 }
 
 var encTestcases = []EncodingTestcase{
@@ -13,5 +13,5 @@ var encTestcases = []EncodingTestcase{
 }
 
 var decTestcases = []DecodingTestcase{
-	{"zjtptsj2vn", Box{77.2779929638, 77.2779983282, 142.280373573, 142.280384302}, nil},
+	{"9745rntct4xh", Box{17.482266202569008, 17.48226637020707, -120.62176242470741, -120.62176208943129}, nil},
 }
