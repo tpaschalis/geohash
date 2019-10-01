@@ -29,7 +29,8 @@ const (
 	NorthWest
 )
 
-// Encodes a Point, returning a geohash string
+// Encode takes a Point (latitude/longitude pair) and
+// returns a geohash string.
 // Uses maximum 12-character precision
 func Encode(p Point) (string, error) {
 	s, e := EncodeUsingPrecision(p, 12)
@@ -38,7 +39,9 @@ func Encode(p Point) (string, error) {
 
 var base32Charset = "0123456789bcdefghjkmnpqrstuvwxyz"
 
-// Encodes a Point, returning a geohash string
+// EncodeUsingPrecision takes a Point (latitude/longitude pair) and
+// returns a geohash string of specified length
+//Encodes a Point, returning a geohash string
 // of length equal to `precision`
 func EncodeUsingPrecision(p Point, precision int) (string, error) {
 	res := ""
@@ -53,7 +56,7 @@ func EncodeUsingPrecision(p Point, precision int) (string, error) {
 	}
 
 	if precision > 12 || precision <= 0 {
-		return res, InvalidPrecisionError
+		return res, ErrInvalidPrecision
 	}
 
 	for len(res) < precision {
@@ -93,12 +96,13 @@ func EncodeUsingPrecision(p Point, precision int) (string, error) {
 	return res, nil
 }
 
-// Decodes a geohash string, return a Box
-func Decode(hash string) (Box, error) {
+// DecodeToBox takes a geohash string,
+// and returns a Box which bounds the decoded point.
+func DecodeToBox(hash string) (Box, error) {
 	hash = strings.ToLower(hash)
-	//if err := ValidHash(hash); err != nil {
-	//	return Box{}, InvalidHashError
-	//}
+	if err := ValidHash(hash); err != nil {
+		return Box{}, err
+	}
 
 	evenBit := true
 	latMin, latMax := -90., 90.
@@ -127,19 +131,24 @@ func Decode(hash string) (Box, error) {
 				} else {
 					latMax = latMid
 				}
-				evenBit = !evenBit
 			}
+			evenBit = !evenBit
 		}
 	}
 
 	return Box{latMin, latMax, lonMin, lonMax}, nil
 }
 
+// DecodeToPoint takes a geohash string,
+// and returns a Point which corresponds to the
+// bounding Box center point
+func DecodeToPoint() {}
+
 func ValidPoint(p Point) error {
 	latMin, latMax := -90., 90.
 	lonMin, lonMax := -180., 180.
 	if p.lat < latMin || p.lat > latMax || p.lon < lonMin || p.lon > lonMax {
-		return InvalidPointError
+		return ErrInvalidPoint
 	}
 
 	return nil
@@ -147,12 +156,12 @@ func ValidPoint(p Point) error {
 
 func ValidHash(h string) error {
 	if len(h) > 12 {
-		return ErrorHashExceedsMaxPrecision
+		return ErrHashExceedsMaxPrecision
 	}
 	for v := range h {
 		s := h[v : v+1]
-		if strings.Index(base32Charset) == -1 {
-			return
+		if strings.Index(base32Charset, s) == -1 {
+			return ErrInvalidCharacterInHash
 		}
 	}
 	return nil
