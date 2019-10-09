@@ -1,4 +1,4 @@
-package geohash
+package main
 
 import "errors"
 

@@ -1,4 +1,4 @@
-package geohash
+package main
 
 var vpTestcases = []ValidPointTestcase{
 	{Point{40.23, 23.41}, nil},

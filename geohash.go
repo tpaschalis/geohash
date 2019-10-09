@@ -1,4 +1,4 @@
-package geohash
+package main
 
 import (
 	"strings"
@@ -10,10 +10,10 @@ type Point struct {
 }
 
 type Box struct {
-	minLat float64
-	maxLat float64
-	minLon float64
-	maxLon float64
+	LatMin float64
+	LatMax float64
+	LonMin float64
+	LonMax float64
 }
 
 type Direction int
